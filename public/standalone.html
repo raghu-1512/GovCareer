@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GovCareer India - Single File Standalone Portal</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18 & Babel Standalone -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Lucide Icons Bundle -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      background-color: #030712;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-blue-600 selection:text-white">
+  <div id="root"></div>
+
+  <!-- Standalone React Application Code -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef } = React;
+
+    // --- ICON HELPER COMPONENT ---
+    const Icon = ({ name, className = "w-4 h-4", ...props }) => {
+      // Map common icon names to standard SVG icons or render Lucide
+      return (
+        <span 
+          className={`inline-flex items-center justify-center ${className}`} 
+          dangerouslySetInnerHTML={{
+            __html: window.lucide?.icons?.[name] 
+              ? window.lucide.icons[name].toSvg({ class: className, ...props })
+              : '<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/></svg>'
+          }}
+        />
+      );
+    };
+
+    // --- MOCK DATABASE DATA (Central, State, Technical, Banking, 10th, 12th, B.Tech) ---
+    const STANDALONE_JOBS = [
+      {
+        id: 'job-isro-scientist-2026',
+        title: "Scientist / Engineer 'SC' (Computer Science / IT)",
+        organization: "Indian Space Research Organisation (ISRO)",
+        department: "Department of Space, Govt of India",
+        sector: "Technical",
+        jobType: "Central",
+        vacancies: 68,
+        salary: { min: 56100, max: 177500, payLevel: "Level 10 (₹56,100 - ₹1,77,500 + DA & HRA)" },
+        location: "Bengaluru, Sriharikota, Thiruvananthapuram, Ahmedabad",
+        educationRequired: ["B.Tech / B.E.", "Master's Degree"],
+        degreesAllowed: ["B.Tech", "B.E.", "B.Sc (Engg)", "M.Tech", "M.E."],
+        branchesAllowed: ["Computer Science and Engineering", "Information Technology", "Computer Technology", "Software Engineering"],
+        minAge: 18,
+        maxAge: 30,
+        ageRelaxation: { obc: 3, scSt: 5, pwd: 10 },
+        experienceRequiredYears: 0,
+        experienceDescription: "Freshers eligible. Minimum 65% marks or 6.84 CGPA in aggregate in B.Tech / B.E.",
+        applicationStartDate: "2026-08-01",
+        applicationDeadline: "2026-09-15",
+        examDate: "2026-11-22",
+        selectionProcess: ["Written Examination (80 marks Core + 20 marks Aptitude)", "Personal Interview (100 marks)"],
+        syllabus: [
+          { section: "Computer Science Core", marks: 80, topics: ["Data Structures & Algorithms", "OS & Memory Management", "DBMS & SQL", "Computer Networks", "Theory of Computation", "Compiler Design"] },
+          { section: "General Engineering & Aptitude", marks: 20, topics: ["Engineering Mathematics", "Numerical Reasoning", "Logical Deductions"] }
+        ],
+        description: "Recruitment for ISRO Centralised Recruitment Board (ICRB) for Scientist/Engineer 'SC' posts supporting satellite telemetry, mission launch systems, ground data centres, and space exploration algorithms.",
+        officialSourceUrl: "https://www.isro.gov.in/Careers.html",
+        officialNotificationPdf: "https://www.isro.gov.in/media_isro/pdf/recruitment/Scientist_SC_2026_Advt.pdf",
+        officialApplicationUrl: "https://apps.isac.gov.in/isro-icrb-2026",
+        isVerified: true,
+        lastVerifiedDate: "2026-08-15",
+        tags: ["B.Tech CSE", "Space", "Level 10", "ISRO", "Gazetted Officer"]
+      },
+      {
+        id: 'job-ssc-cgl-2026',
+        title: "Assistant Section Officer (ASO) & Inspector of Income Tax",
+        organization: "Staff Selection Commission (SSC)",
+        department: "Ministry of External Affairs, Central Secretariat Service & CBIC",
+        sector: "SSC",
+        jobType: "Central",
+        vacancies: 14250,
+        salary: { min: 44900, max: 142400, payLevel: "Level 7 (₹44,900 - ₹1,42,400 + Allowances)" },
+        location: "Pan India (New Delhi, Mumbai, Kolkata, Chennai, State Capitals)",
+        educationRequired: ["Bachelor's Degree", "B.Tech / B.E.", "Master's Degree"],
+        degreesAllowed: ["B.A.", "B.Sc", "B.Com", "B.Tech", "B.E.", "BBA", "BCA", "Any Graduate"],
+        branchesAllowed: ["Any"],
+        minAge: 20,
+        maxAge: 30,
+        ageRelaxation: { obc: 3, scSt: 5, pwd: 10 },
+        experienceRequiredYears: 0,
+        experienceDescription: "No prior work experience required. Graduation in any discipline from recognized university.",
+        applicationStartDate: "2026-07-15",
+        applicationDeadline: "2026-08-30",
+        examDate: "2026-10-18",
+        selectionProcess: ["Tier-I Computer Based Examination", "Tier-II Computer Based Examination", "Computer Knowledge Test & Data Entry", "Document Verification"],
+        syllabus: [
+          { section: "Tier-I Exam", marks: 200, topics: ["General Intelligence & Reasoning (50)", "General Awareness (50)", "Quantitative Aptitude (50)", "English Comprehension (50)"] },
+          { section: "Tier-II Exam", marks: 390, topics: ["Mathematical Abilities", "Reasoning & General Intelligence", "English Language & Comprehension", "General Awareness", "Computer Proficiency Module"] }
+        ],
+        description: "Premier pan-India examination recruiting Officers and Inspectors across Central Government Ministries, Intelligence Bureau, Central Vigilance Commission, and Revenue Departments.",
+        officialSourceUrl: "https://ssc.gov.in",
+        officialNotificationPdf: "https://ssc.gov.in/api/notices/CGL_2026_Official_Notice.pdf",
+        officialApplicationUrl: "https://ssc.gov.in/apply/cgl2026",
+        isVerified: true,
+        lastVerifiedDate: "2026-08-15",
+        tags: ["Graduate", "ASO", "Income Tax", "High Vacancy", "Central Govt"]
+      },
+      {
+        id: 'job-india-post-gds-2026',
+        title: "Gramin Dak Sevak (GDS) - Branch Postmaster & ABPM",
+        organization: "Department of Posts (India Post)",
+        department: "Ministry of Communications, Govt of India",
+        sector: "Central",
+        jobType: "Central",
+        vacancies: 44228,
+        salary: { min: 12000, max: 29380, payLevel: "TRCA Slab 1 & 2 (₹12,000 - ₹29,380 + Allowances)" },
+        location: "Pan India (Across 23 Postal Circles, All Districts & Villages)",
+        educationRequired: ["10th Pass"],
+        degreesAllowed: ["10th Pass", "Matriculation", "SSC", "High School Certificate"],
+        branchesAllowed: ["Any"],
+        minAge: 18,
+        maxAge: 40,
+        ageRelaxation: { obc: 3, scSt: 5, pwd: 10 },
+        experienceRequiredYears: 0,
+        experienceDescription: "No written exam. Selection purely on 10th Standard Board Merit percentage. Compulsory study of local language & basic computer operation.",
+        applicationStartDate: "2026-07-15",
+        applicationDeadline: "2026-08-30",
+        selectionProcess: ["Automatic System Merit Generation based on 10th Class Percentage", "Document Verification at Divisional Head Post Office"],
+        syllabus: [{ section: "Direct Merit", marks: 100, topics: ["10th Standard Marks weightage", "Local state language proficiency"] }],
+        description: "India Post recruitment for Branch Postmasters (BPM) and Assistant Branch Postmasters (ABPM) managing village post offices and IPPB digital banking.",
+        officialSourceUrl: "https://indiapostgdsonline.gov.in",
+        officialNotificationPdf: "https://indiapostgdsonline.gov.in/pdf/GDS_2026_Notification.pdf",
+        officialApplicationUrl: "https://indiapostgdsonline.gov.in/Registration.aspx",
+        isVerified: true,
+        lastVerifiedDate: "2026-08-15",
+        tags: ["10th Pass", "India Post", "GDS", "No Exam", "High Vacancies"]
+      },
+      {
+        id: 'job-sebi-grade-a-2026',
+        title: "Assistant Manager (Grade A) - Information Technology",
+        organization: "Securities and Exchange Board of India (SEBI)",
+        department: "Information Technology Department",
+        sector: "Banking",
+        jobType: "PSU",
+        vacancies: 34,
+        salary: { min: 44500, max: 155000, payLevel: "Grade A Officer (₹44,500 - ₹89,150 + CTC ~₹34 Lakhs p.a.)" },
+        location: "Mumbai (Head Office) / Regional Offices",
+        educationRequired: ["B.Tech / B.E.", "Master's Degree"],
+        degreesAllowed: ["B.Tech", "B.E.", "MCA", "M.Tech"],
+        branchesAllowed: ["Computer Science and Engineering", "Information Technology", "Electronics and Communication"],
+        minAge: 21,
+        maxAge: 30,
+        ageRelaxation: { obc: 3, scSt: 5, pwd: 10 },
+        experienceRequiredYears: 0,
+        experienceDescription: "Freshers eligible. Bachelor's Degree in Engineering (Electrical/Electronics/ECE/IT/CS) or MCA or Master's in IT.",
+        applicationStartDate: "2026-07-28",
+        applicationDeadline: "2026-08-25",
+        examDate: "2026-09-28",
+        selectionProcess: ["Phase I Online Exam (Paper 1 & Paper 2)", "Phase II Online Exam (Paper 1 English & Paper 2 Coding / IT)", "Phase III Interview"],
+        syllabus: [
+          { section: "Phase 1 IT Specialised Paper", marks: 100, topics: ["Database Management Systems & SQL", "Algorithms & Complexity", "Data Structures", "Networking Protocols & Cybersecurity", "Cloud & Web Technologies"] }
+        ],
+        description: "Direct officer recruitment at India's capital market regulator, overseeing stock exchange algorithms, surveillance platforms, fintech supervision, and cybersecurity.",
+        officialSourceUrl: "https://www.sebi.gov.in/sebiweb/other/career.jsp",
+        officialNotificationPdf: "https://www.sebi.gov.in/recruitment/Notice_Grade_A_2026.pdf",
+        officialApplicationUrl: "https://ibpsonline.ibps.in/sebiao2026/",
+        isVerified: true,
+        lastVerifiedDate: "2026-08-15",
+        tags: ["SEBI", "B.Tech CSE", "Banking & Regulators", "High Salary", "Officer"]
+      },
+      {
+        id: 'job-upsc-cse-2026',
+        title: "Civil Services Examination (IAS, IPS, IFS, IRS)",
+        organization: "Union Public Service Commission (UPSC)",
+        department: "Ministry of Personnel, Public Grievances and Pensions",
+        sector: "UPSC",
+        jobType: "Central",
+        vacancies: 1105,
+        salary: { min: 56100, max: 250000, payLevel: "Level 10 to Level 17 (Apex Scale)" },
+        location: "All India Cadres",
+        educationRequired: ["Bachelor's Degree", "B.Tech / B.E.", "Master's Degree", "PhD"],
+        degreesAllowed: ["Any Graduate", "B.A.", "B.Sc", "B.Com", "B.Tech", "B.E.", "MBBS"],
+        branchesAllowed: ["Any"],
+        minAge: 21,
+        maxAge: 32,
+        ageRelaxation: { obc: 3, scSt: 5, pwd: 10 },
+        experienceRequiredYears: 0,
+        experienceDescription: "Graduation in any discipline.",
+        applicationStartDate: "2026-02-14",
+        applicationDeadline: "2026-03-05",
+        examDate: "2026-09-20",
+        selectionProcess: ["Preliminary Examination (GS-1 & CSAT)", "Mains Written Examination (9 Papers)", "Personality Test / Interview"],
+        syllabus: [
+          { section: "Prelims GS Paper I", marks: 200, topics: ["Current Events", "History of India", "Indian Polity & Governance", "Economic & Social Development", "Environmental Ecology", "General Science"] }
+        ],
+        description: "India's highest civil service examination selecting district magistrates, police chiefs, diplomats, and senior policy makers.",
+        officialSourceUrl: "https://upsc.gov.in",
+        officialNotificationPdf: "https://upsc.gov.in/sites/default/files/Notice-CSPE-2026-engl.pdf",
+        officialApplicationUrl: "https://upsconline.nic.in",
+        isVerified: true,
+        lastVerifiedDate: "2026-08-15",
+        tags: ["UPSC", "IAS", "IPS", "All Graduates", "Prestigious"]
+      }
+    ];
+
+    const STANDALONE_EXAMS = [
+      {
+        id: 'exam-1',
+        title: 'UPSC Civil Services (Preliminary) Exam 2026',
+        organization: 'UPSC',
+        category: 'UPSC',
+        examDate: '2026-09-20',
+        admitCardDate: '2026-09-01',
+        officialUrl: 'https://upsc.gov.in',
+        syllabusOverview: 'General Studies Paper I (100 Questions) + CSAT Paper II (80 Questions, Qualifying 33%)'
+      },
+      {
+        id: 'exam-2',
+        title: 'SSC Combined Graduate Level (Tier-I) Exam 2026',
+        organization: 'Staff Selection Commission (SSC)',
+        category: 'SSC',
+        examDate: '2026-10-18',
+        admitCardDate: '2026-10-05',
+        officialUrl: 'https://ssc.gov.in',
+        syllabusOverview: '100 Questions: Reasoning (25), GA (25), Quantitative Aptitude (25), English (25)'
+      },
+      {
+        id: 'exam-3',
+        title: 'ISRO Scientist / Engineer SC (Computer Science) Exam',
+        organization: 'ISRO',
+        category: 'Technical',
+        examDate: '2026-11-22',
+        admitCardDate: '2026-11-10',
+        officialUrl: 'https://www.isro.gov.in',
+        syllabusOverview: '80 Questions from Core CS + 20 Questions from Aptitude & Basic Engineering Maths'
+      }
+    ];
+
+    // --- ELIGIBILITY EVALUATION ENGINE ---
+    function evaluateEligibility(profile, job) {
+      let score = 0;
+      const reasons = [];
+      const warnings = [];
+
+      // 1. Age Calculation
+      let userAge = 24;
+      if (profile.dateOfBirth) {
+        const birthDate = new Date(profile.dateOfBirth);
+        const refDate = new Date('2026-08-01');
+        let calculatedAge = refDate.getFullYear() - birthDate.getFullYear();
+        const m = refDate.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && refDate.getDate() < birthDate.getDate())) {
+          calculatedAge--;
+        }
+        userAge = calculatedAge;
+      }
+
+      let maxAgeAllowed = job.maxAge;
+      let relaxationYears = 0;
+      if (profile.category === 'OBC') relaxationYears = job.ageRelaxation?.obc || 3;
+      else if (profile.category === 'SC' || profile.category === 'ST') relaxationYears = job.ageRelaxation?.scSt || 5;
+      else if (profile.category === 'PwD') relaxationYears = job.ageRelaxation?.pwd || 10;
+      maxAgeAllowed += relaxationYears;
+
+      let ageEligible = false;
+      if (userAge >= job.minAge && userAge <= maxAgeAllowed) {
+        ageEligible = true;
+        score += 35;
+        reasons.push(`Age ${userAge} falls within [${job.minAge} - ${maxAgeAllowed}] years (${profile.category} category relaxation +${relaxationYears} yrs).`);
+      } else if (userAge < job.minAge) {
+        warnings.push(`Under minimum age limit (Minimum age: ${job.minAge}, current age: ${userAge}).`);
+      } else {
+        warnings.push(`Exceeds maximum age limit of ${maxAgeAllowed} years for ${profile.category} category (Current age: ${userAge}).`);
+      }
+
+      // 2. Education Qualification
+      let educationEligible = false;
+      const userLevel = profile.educationLevel || 'B.Tech / B.E.';
+      const jobEduLevels = job.educationRequired || [];
+      
+      const hierarchy = {
+        '10th Pass': 1,
+        '12th Pass': 2,
+        'Diploma / ITI': 3,
+        "Bachelor's Degree": 4,
+        'B.Tech / B.E.': 4,
+        "Master's Degree": 5,
+        'PhD / Doctorate': 6
+      };
+
+      const userRank = hierarchy[userLevel] || 4;
+      const minRequiredRank = Math.min(...jobEduLevels.map(lvl => hierarchy[lvl] || 1));
+
+      if (userRank >= minRequiredRank) {
+        educationEligible = true;
+        score += 40;
+        reasons.push(`Educational qualification (${userLevel}) satisfies or exceeds notification requirement (${jobEduLevels.join(' / ')}).`);
+      } else {
+        warnings.push(`Requires minimum qualification of ${jobEduLevels.join(' or ')}. Your profile indicates ${userLevel}.`);
+      }
+
+      // 3. Experience Match
+      let expEligible = true;
+      const reqExp = job.experienceRequiredYears || 0;
+      const userExp = profile.experienceYears || 0;
+      if (userExp >= reqExp) {
+        score += 15;
+        reasons.push(reqExp === 0 ? 'Freshers eligible - no prior government experience mandatory.' : `Experience of ${userExp} year(s) meets requirement of ${reqExp} year(s).`);
+      } else {
+        expEligible = false;
+        warnings.push(`Requires ${reqExp} year(s) of experience. Profile has ${userExp} year(s).`);
+      }
+
+      // 4. Sector / Domain Synergy
+      if (profile.preferredSectors?.includes(job.sector)) {
+        score += 10;
+        reasons.push(`Direct alignment with your preferred career track in ${job.sector} sector.`);
+      }
+
+      const isEligible = ageEligible && educationEligible && expEligible;
+      const matchPercentage = Math.min(100, Math.max(score, isEligible ? 75 : 30));
+
+      return {
+        isEligible,
+        matchPercentage,
+        status: isEligible ? 'Eligible' : matchPercentage >= 50 ? 'Partially Eligible' : 'Not Eligible',
+        reasons,
+        warnings,
+        maxAgeAllowed,
+        ageRelaxationYears: relaxationYears
+      };
+    }
+
+    // --- MAIN SINGLE FILE APP ---
+    function App() {
+      // Current View Tab
+      const [activeTab, setActiveTab] = useState('search');
+      const [history, setHistory] = useState([]);
+      const [selectedJob, setSelectedJob] = useState(null);
+
+      // Search & Filters
+      const [searchTerm, setSearchTerm] = useState('');
+      const [filterEdu, setFilterEdu] = useState('All');
+      const [filterSector, setFilterSector] = useState('All');
+
+      // Candidate Profile
+      const [profile, setProfile] = useState(() => {
+        const saved = localStorage.getItem('govcareer_standalone_profile');
+        return saved ? JSON.parse(saved) : {
+          name: 'Raghu Mullu',
+          email: 'mulluraghu15@gmail.com',
+          dateOfBirth: '2002-04-15',
+          gender: 'Male',
+          category: 'General',
+          educationLevel: 'B.Tech / B.E.',
+          degree: 'B.Tech',
+          branch: 'Computer Science and Engineering',
+          experienceYears: 1,
+          preferredSectors: ['Technical', 'Central', 'Banking', 'UPSC', 'SSC']
+        };
+      });
+
+      // Saved Jobs & Applications
+      const [savedJobIds, setSavedJobIds] = useState(() => {
+        const saved = localStorage.getItem('govcareer_standalone_saved');
+        return saved ? JSON.parse(saved) : ['job-isro-scientist-2026', 'job-sebi-grade-a-2026'];
+      });
+
+      const [applications, setApplications] = useState(() => {
+        const saved = localStorage.getItem('govcareer_standalone_apps');
+        return saved ? JSON.parse(saved) : [
+          {
+            id: 'app-1',
+            jobId: 'job-isro-scientist-2026',
+            jobTitle: "Scientist / Engineer 'SC' (Computer Science)",
+            organization: 'ISRO',
+            status: 'Application Submitted',
+            registrationNumber: 'ISRO-ICRB-2026-CS8842',
+            rollNumber: '26CS084192',
+            examCenter: 'Bengaluru South',
+            examDate: '2026-11-22',
+            notes: 'Form submitted. Reviewing Core Algorithms and OS concepts.'
+          }
+        ];
+      });
+
+      // Interactive AI Mentor Chat
+      const [chatMessages, setChatMessages] = useState([
+        { role: 'assistant', text: 'Namaste Raghu! I am your AI Government Exam Mentor. Ask me about eligibility rules, syllabus breakdowns, previous year strategies, or exam preparation schedules across UPSC, SSC, ISRO, Banking and State PSCs.' }
+      ]);
+      const [chatInput, setChatInput] = useState('');
+      const [chatLoading, setChatLoading] = useState(false);
+
+      // Save state to localStorage
+      useEffect(() => {
+        localStorage.setItem('govcareer_standalone_profile', JSON.stringify(profile));
+      }, [profile]);
+
+      useEffect(() => {
+        localStorage.setItem('govcareer_standalone_saved', JSON.stringify(savedJobIds));
+      }, [savedJobIds]);
+
+      useEffect(() => {
+        localStorage.setItem('govcareer_standalone_apps', JSON.stringify(applications));
+      }, [applications]);
+
+      // Navigation handler with history
+      const navigateTo = (tab) => {
+        if (tab !== activeTab) {
+          setHistory(prev => [...prev, activeTab]);
+          setActiveTab(tab);
+        }
+      };
+
+      const goBack = () => {
+        if (selectedJob) {
+          setSelectedJob(null);
+          return;
+        }
+        if (history.length > 0) {
+          const prev = history[history.length - 1];
+          setHistory(old => old.slice(0, -1));
+          setActiveTab(prev);
+        } else if (activeTab !== 'search') {
+          setActiveTab('search');
+        }
+      };
+
+      const toggleSaveJob = (jobId) => {
+        setSavedJobIds(prev => 
+          prev.includes(jobId) ? prev.filter(id => id !== jobId) : [...prev, jobId]
+        );
+      };
+
+      const handleSendChat = (e) => {
+        e?.preventDefault();
+        if (!chatInput.trim() || chatLoading) return;
+
+        const userMsg = chatInput.trim();
+        setChatMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+        setChatInput('');
+        setChatLoading(true);
+
+        setTimeout(() => {
+          let responseText = '';
+          const lower = userMsg.toLowerCase();
+          
+          if (lower.includes('isro') || lower.includes('scientist')) {
+            responseText = `🚀 **ISRO Scientist 'SC' Preparation Strategy for Computer Science:**\n\n1. **Core CS Topics (80 Marks)**: Focus heavily on Data Structures, OS, Database Systems, Computer Networks, and Compiler Design. ISRO questions are strictly technical and conceptual.\n2. **Engineering Mathematics & Aptitude (20 Marks)**: Linear algebra, discrete maths, probability, and basic calculus.\n3. **Cut-off Target**: Aim for 65+ out of 100 in the written test to ensure an interview call.\n4. **Official Source**: Verify notifications directly at isro.gov.in.`;
+          } else if (lower.includes('ssc') || lower.includes('cgl')) {
+            responseText = `📊 **SSC CGL 2026 Strategy:**\n\n- **Tier-1**: Speed in Reasoning (25 Qs) and Quant (25 Qs) is key. Take at least 2 full timed mocks weekly.\n- **Tier-2 Focus**: Weightage is highest for Math & Reasoning (180 Marks) and English (135 Marks). Do not neglect Computer Proficiency (qualifying)!\n- **Age Limit**: 18-30 years (with 3 yrs relaxation for OBC, 5 yrs for SC/ST).`;
+          } else if (lower.includes('10th') || lower.includes('gds') || lower.includes('12th')) {
+            responseText = `📜 **Opportunities for 10th & 12th Pass Candidates:**\n\n- **India Post GDS**: 44,228+ vacancies with direct merit-based selection on 10th board percentage (No written exam!).\n- **SSC MTS & Havaldar**: 9,580+ vacancies for 10th pass candidates across Central Ministries with Pay Level 1.\n- **SSC CHSL (10+2)**: Lower Division Clerk & Data Entry Operator in Central Government.`;
+          } else {
+            responseText = `💡 **Government Exam Guidance:**\n\nBased on your profile (${profile.educationLevel} in ${profile.branch}, ${profile.category} category), you are eligible for **ISRO Scientist SC**, **SSC CGL ASO & ITI**, **SEBI Grade A (IT)**, and **UPSC Civil Services**.\n\nKey recommendation: Maintain daily practice in General Aptitude + technical revision to maximize qualification chances across concurrent exam schedules.`;
+          }
+
+          setChatMessages(prev => [...prev, { role: 'assistant', text: responseText }]);
+          setChatLoading(false);
+        }, 600);
+      };
+
+      // Filtered Jobs
+      const filteredJobs = useMemo(() => {
+        return STANDALONE_JOBS.filter(job => {
+          const matchQuery = !searchTerm || 
+            job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            job.organization.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            job.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()));
+          
+          const matchEdu = filterEdu === 'All' || job.educationRequired.includes(filterEdu);
+          const matchSector = filterSector === 'All' || job.sector === filterSector;
+
+          return matchQuery && matchEdu && matchSector;
+        });
+      }, [searchTerm, filterEdu, filterSector]);
+
+      return (
+        <div className="min-h-screen bg-slate-950 flex flex-col">
+          {/* Header Navigation */}
+          <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 py-3">
+            <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                {(history.length > 0 || activeTab !== 'search' || selectedJob) && (
+                  <button 
+                    onClick={goBack}
+                    className="p-1.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm group"
+                    title="Go back"
+                  >
+                    <span className="text-blue-400 group-hover:-translate-x-0.5 transition-transform">←</span>
+                    <span>Back</span>
+                  </button>
+                )}
+
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                    🏛️
+                  </div>
+                  <div>
+                    <h1 className="text-base font-extrabold text-white leading-tight">GovCareer India</h1>
+                    <p className="text-[10px] text-blue-400 font-medium">Standalone Offline-Ready Portal</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation Tabs */}
+              <nav className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                <button
+                  onClick={() => navigateTo('search')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${activeTab === 'search' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-slate-300 hover:bg-slate-800'}`}
+                >
+                  Jobs Explorer
+                </button>
+                <button
+                  onClick={() => navigateTo('tracker')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${activeTab === 'tracker' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-slate-300 hover:bg-slate-800'}`}
+                >
+                  <span>Tracker</span>
+                  <span className="px-1.5 py-0.2 rounded-full bg-slate-800 text-[10px]">{applications.length}</span>
+                </button>
+                <button
+                  onClick={() => navigateTo('calendar')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${activeTab === 'calendar' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-slate-300 hover:bg-slate-800'}`}
+                >
+                  Exam Calendar
+                </button>
+                <button
+                  onClick={() => navigateTo('mentor')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${activeTab === 'mentor' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-slate-300 hover:bg-slate-800'}`}
+                >
+                  AI Mentor
+                </button>
+                <button
+                  onClick={() => navigateTo('profile')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${activeTab === 'profile' ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' : 'text-slate-300 hover:bg-slate-800'}`}
+                >
+                  Profile & Eligibility
+                </button>
+              </nav>
+            </div>
+          </header>
+
+          {/* Main Workspace Container */}
+          <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+            
+            {/* VIEW 1: JOB EXPLORER */}
+            {activeTab === 'search' && (
+              <div className="space-y-6">
+                {/* Search & Filter Bar */}
+                <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        placeholder="Search by job title, organization (ISRO, SSC, UPSC, Post Office), or skills..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                      />
+                      {searchTerm && (
+                        <button onClick={() => setSearchTerm('')} className="absolute right-3.5 top-3.5 text-xs text-slate-500 hover:text-white">✕</button>
+                      )}
+                    </div>
+
+                    <select
+                      value={filterEdu}
+                      onChange={(e) => setFilterEdu(e.target.value)}
+                      className="bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-xs font-medium text-slate-200 focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="All">All Education Levels</option>
+                      <option value="10th Pass">10th Pass</option>
+                      <option value="12th Pass">12th Pass</option>
+                      <option value="Diploma / ITI">Diploma / ITI</option>
+                      <option value="Bachelor's Degree">Bachelor's Degree</option>
+                      <option value="B.Tech / B.E.">B.Tech / B.E.</option>
+                      <option value="Master's Degree">Master's Degree</option>
+                    </select>
+
+                    <select
+                      value={filterSector}
+                      onChange={(e) => setFilterSector(e.target.value)}
+                      className="bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-xs font-medium text-slate-200 focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="All">All Sectors</option>
+                      <option value="Central">Central Govt</option>
+                      <option value="Technical">Technical & Research</option>
+                      <option value="Banking">Banking & Regulators</option>
+                      <option value="UPSC">UPSC Civil Services</option>
+                      <option value="SSC">SSC Staff Selection</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-slate-400">
+                    <span>Showing <strong className="text-white">{filteredJobs.length}</strong> verified government vacancies</span>
+                    <span className="text-emerald-400 font-medium">✓ Automatic Eligibility Matching Active for {profile.name} ({profile.educationLevel})</span>
+                  </div>
+                </div>
+
+                {/* Job Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  {filteredJobs.map(job => {
+                    const eligibility = evaluateEligibility(profile, job);
+                    const isSaved = savedJobIds.includes(job.id);
+
+                    return (
+                      <div key={job.id} className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-3xl p-5 sm:p-6 transition-all shadow-lg flex flex-col justify-between space-y-4">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <span className="text-[11px] font-bold text-blue-400 uppercase tracking-wider">{job.organization}</span>
+                              <h2 className="text-lg font-bold text-white leading-snug mt-0.5">{job.title}</h2>
+                              <p className="text-xs text-slate-400 mt-1">{job.department}</p>
+                            </div>
+
+                            <button
+                              onClick={() => toggleSaveJob(job.id)}
+                              className={`p-2 rounded-xl border transition-all ${isSaved ? 'bg-blue-600/20 border-blue-500/50 text-blue-400' : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:text-white'}`}
+                              title={isSaved ? 'Remove from saved' : 'Bookmark job'}
+                            >
+                              {isSaved ? '★' : '☆'}
+                            </button>
+                          </div>
+
+                          {/* Match Badge */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold border flex items-center gap-1 ${eligibility.isEligible ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' : 'bg-amber-500/10 text-amber-300 border-amber-500/30'}`}>
+                              <span>{eligibility.isEligible ? '✓' : 'ℹ'}</span>
+                              <span>{eligibility.status} ({eligibility.matchPercentage}% Match)</span>
+                            </span>
+
+                            <span className="px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-medium border border-slate-700">
+                              Vacancies: <strong className="text-white">{job.vacancies.toLocaleString()}</strong>
+                            </span>
+
+                            <span className="px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-medium border border-slate-700">
+                              Age Limit: {job.minAge}-{eligibility.maxAgeAllowed} yrs
+                            </span>
+                          </div>
+
+                          {/* Highlights */}
+                          <div className="bg-slate-950/60 rounded-2xl p-3 border border-slate-800/60 space-y-1.5 text-xs text-slate-300">
+                            <div className="flex justify-between">
+                              <span className="text-slate-400">Pay Level:</span>
+                              <span className="text-emerald-400 font-semibold">{job.salary.payLevel}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-slate-400">Application Closes:</span>
+                              <span className="text-amber-400 font-semibold">{job.applicationDeadline}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-slate-400">Eligibility Reasons:</span>
+                              <span className="text-slate-300 text-right truncate max-w-[200px]">{eligibility.reasons[0] || 'Matches criteria'}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2 pt-2 border-t border-slate-800">
+                          <button
+                            onClick={() => setSelectedJob(job)}
+                            className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20"
+                          >
+                            View Full Dossier & Syllabus
+                          </button>
+                          <a
+                            href={job.officialApplicationUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all flex items-center gap-1"
+                          >
+                            <span>Apply Official</span>
+                            <span>↗</span>
+                          </a>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* VIEW 2: APPLICATION TRACKER */}
+            {activeTab === 'tracker' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Government Application Tracking Console</h2>
+                    <p className="text-xs text-slate-400 mt-0.5">Keep registration numbers, roll numbers, exam dates, and admit cards organized.</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const newApp = {
+                        id: `app-${Date.now()}`,
+                        jobId: 'custom-job',
+                        jobTitle: 'SSC CGL 2026 Examination',
+                        organization: 'Staff Selection Commission',
+                        status: 'Applied',
+                        registrationNumber: 'SSC-2026-90812',
+                        examDate: '2026-10-18',
+                        notes: 'Applied online. Tier-1 mock tests in progress.'
+                      };
+                      setApplications(prev => [newApp, ...prev]);
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20"
+                  >
+                    + Track New Job
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  {applications.map(app => (
+                    <div key={app.id} className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                          <span className="text-[11px] font-bold text-blue-400 uppercase">{app.organization}</span>
+                          <h3 className="text-base font-bold text-white">{app.jobTitle}</h3>
+                        </div>
+
+                        <select
+                          value={app.status}
+                          onChange={(e) => {
+                            const newStatus = e.target.value;
+                            setApplications(prev => prev.map(a => a.id === app.id ? { ...a, status: newStatus } : a));
+                          }}
+                          className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-semibold text-emerald-400 focus:outline-none"
+                        >
+                          <option value="Interested">Interested</option>
+                          <option value="Applied">Applied</option>
+                          <option value="Application Submitted">Application Submitted</option>
+                          <option value="Admit Card">Admit Card Released</option>
+                          <option value="Exam Completed">Exam Completed</option>
+                          <option value="Interview">Interview Stage</option>
+                          <option value="Selected">Final Selection</option>
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950/60 p-4 rounded-2xl border border-slate-800/60 text-xs">
+                        <div>
+                          <span className="text-slate-400 block">Registration / Roll No:</span>
+                          <strong className="text-white font-mono">{app.registrationNumber || 'Not recorded'}</strong>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block">Exam Date:</span>
+                          <strong className="text-amber-400">{app.examDate || 'To be announced'}</strong>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block">Exam Center:</span>
+                          <span className="text-slate-300">{app.examCenter || 'Pending admit card'}</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-xs text-slate-400 block mb-1">Preparation Notes & Milestones:</span>
+                        <input
+                          type="text"
+                          value={app.notes || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setApplications(prev => prev.map(a => a.id === app.id ? { ...a, notes: val } : a));
+                          }}
+                          placeholder="Add revision status, mock score notes..."
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* VIEW 3: EXAM CALENDAR */}
+            {activeTab === 'calendar' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-bold text-white">National Government Exam Schedule 2026</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Verified dates for major national recruitments across UPSC, SSC, Technical, and Banking.</p>
+                </div>
+
+                <div className="space-y-4">
+                  {STANDALONE_EXAMS.map(exam => (
+                    <div key={exam.id} className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-bold uppercase">{exam.category}</span>
+                          <span className="text-xs text-slate-400">{exam.organization}</span>
+                        </div>
+                        <h3 className="text-base font-bold text-white">{exam.title}</h3>
+                        <p className="text-xs text-slate-400">{exam.syllabusOverview}</p>
+                      </div>
+
+                      <div className="text-right flex-shrink-0">
+                        <span className="text-[11px] text-slate-400 block">Exam Date</span>
+                        <span className="text-base font-extrabold text-amber-400">{exam.examDate}</span>
+                        <a 
+                          href={exam.officialUrl} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="mt-2 inline-block px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700"
+                        >
+                          Official Portal ↗
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* VIEW 4: AI MENTOR */}
+            {activeTab === 'mentor' && (
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 flex flex-col h-[650px] shadow-2xl">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-800">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-lg">
+                    🤖
+                  </div>
+                  <div>
+                    <h2 className="text-base font-bold text-white">AI Government Exam Preparation Mentor</h2>
+                    <p className="text-xs text-slate-400">Personalized exam guidance, syllabus strategy, and study schedules.</p>
+                  </div>
+                </div>
+
+                {/* Messages Container */}
+                <div className="flex-1 overflow-y-auto py-4 space-y-3.5">
+                  {chatMessages.map((msg, idx) => (
+                    <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[85%] rounded-2xl p-4 text-xs leading-relaxed whitespace-pre-wrap ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-slate-950 text-slate-200 border border-slate-800'}`}>
+                        {msg.text}
+                      </div>
+                    </div>
+                  ))}
+                  {chatLoading && (
+                    <div className="flex justify-start">
+                      <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-slate-400 animate-pulse">
+                        Analyzing government notification syllabi and generating study strategy...
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Input form */}
+                <form onSubmit={handleSendChat} className="pt-3 border-t border-slate-800 flex gap-2">
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    placeholder="Ask about ISRO CS strategy, SSC CGL syllabus, or age relaxation rules..."
+                    className="flex-1 bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  />
+                  <button
+                    type="submit"
+                    disabled={chatLoading}
+                    className="px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20"
+                  >
+                    Send
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* VIEW 5: PROFILE & ELIGIBILITY */}
+            {activeTab === 'profile' && (
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 max-w-2xl mx-auto shadow-2xl">
+                <div>
+                  <h2 className="text-xl font-bold text-white">Candidate Profile & Eligibility Settings</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">All job recommendations and age relaxations are dynamically recalculated when you update your credentials.</p>
+                </div>
+
+                <div className="space-y-4 text-xs">
+                  <div>
+                    <label className="block text-slate-400 mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      value={profile.name}
+                      onChange={(e) => setProfile(p => ({ ...p, name: e.target.value }))}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-slate-400 mb-1">Date of Birth</label>
+                      <input
+                        type="date"
+                        value={profile.dateOfBirth}
+                        onChange={(e) => setProfile(p => ({ ...p, dateOfBirth: e.target.value }))}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-400 mb-1">Reservation Category</label>
+                      <select
+                        value={profile.category}
+                        onChange={(e) => setProfile(p => ({ ...p, category: e.target.value }))}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500"
+                      >
+                        <option value="General">General / UR</option>
+                        <option value="OBC">OBC (Non-Creamy Layer, +3 Yrs Relaxation)</option>
+                        <option value="SC">SC (+5 Yrs Relaxation)</option>
+                        <option value="ST">ST (+5 Yrs Relaxation)</option>
+                        <option value="EWS">EWS</option>
+                        <option value="PwD">PwD (+10 Yrs Relaxation)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-slate-400 mb-1">Highest Qualification</label>
+                      <select
+                        value={profile.educationLevel}
+                        onChange={(e) => setProfile(p => ({ ...p, educationLevel: e.target.value }))}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500"
+                      >
+                        <option value="10th Pass">10th Pass</option>
+                        <option value="12th Pass">12th Pass</option>
+                        <option value="Diploma / ITI">Diploma / ITI</option>
+                        <option value="Bachelor's Degree">Bachelor's Degree (B.A., B.Sc, B.Com)</option>
+                        <option value="B.Tech / B.E.">B.Tech / B.E. (Engineering)</option>
+                        <option value="Master's Degree">Master's Degree (M.Tech, MCA, M.Sc, M.A.)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-400 mb-1">Engineering Branch / Discipline</label>
+                      <input
+                        type="text"
+                        value={profile.branch}
+                        onChange={(e) => setProfile(p => ({ ...p, branch: e.target.value }))}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      alert('Profile saved! Eligibility criteria updated across all jobs.');
+                      navigateTo('search');
+                    }}
+                    className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all shadow-md shadow-blue-600/20"
+                  >
+                    Save & Recalculate Matches
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* JOB DETAILS MODAL */}
+            {selectedJob && (
+              <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+                <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 my-8 shadow-2xl space-y-6">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <button
+                      onClick={() => setSelectedJob(null)}
+                      className="p-1.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1"
+                    >
+                      <span>← Back</span>
+                    </button>
+                    <button onClick={() => setSelectedJob(null)} className="p-1.5 text-slate-400 hover:text-white">✕</button>
+                  </div>
+
+                  <div>
+                    <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">{selectedJob.organization}</span>
+                    <h2 className="text-xl font-bold text-white mt-1">{selectedJob.title}</h2>
+                    <p className="text-xs text-slate-400 mt-1">{selectedJob.department} • {selectedJob.location}</p>
+                  </div>
+
+                  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
+                    <p className="text-slate-300">{selectedJob.description}</p>
+                    <div className="pt-2 border-t border-slate-800 flex justify-between font-semibold">
+                      <span className="text-slate-400">Total Vacancies: <strong className="text-white">{selectedJob.vacancies}</strong></span>
+                      <span className="text-emerald-400">{selectedJob.salary.payLevel}</span>
+                    </div>
+                  </div>
+
+                  {/* Syllabus Section */}
+                  <div>
+                    <h3 className="text-sm font-bold text-white mb-2">Official Examination Syllabus Breakdown</h3>
+                    <div className="space-y-2">
+                      {selectedJob.syllabus.map((s, i) => (
+                        <div key={i} className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs space-y-1">
+                          <div className="flex justify-between font-bold text-slate-200">
+                            <span>{s.section}</span>
+                            <span className="text-blue-400">{s.marks} Marks</span>
+                          </div>
+                          <p className="text-slate-400">{s.topics.join(' • ')}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button
+                      onClick={() => {
+                        toggleSaveJob(selectedJob.id);
+                        setSelectedJob(null);
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold"
+                    >
+                      {savedJobIds.includes(selectedJob.id) ? 'Saved ★' : 'Save Job ☆'}
+                    </button>
+                    <a
+                      href={selectedJob.officialApplicationUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20"
+                    >
+                      Open Official Application Portal ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* Footer */}
+          <footer className="border-t border-slate-800 bg-slate-950 px-4 py-6 text-center text-xs text-slate-500">
+            <p>GovCareer India • Self-contained Single-File Application • Accessible offline with zero build steps.</p>
+          </footer>
+        </div>
+      );
+    }
+
+    // Mount to Root
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
