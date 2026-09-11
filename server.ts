@@ -296,11 +296,6 @@ async function startServer() {
         return res.status(400).json({ error: 'Name, email, and password are required.' });
       }
 
-      const existing = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-      if (existing) {
-        return res.status(400).json({ error: 'An account with this email already exists.' });
-      }
-
       const userProfile: UserProfile = {
         name,
         email,
@@ -322,6 +317,18 @@ async function startServer() {
         minSalaryPreference: profile?.minSalaryPreference || 35000,
         willingToRelocate: profile?.willingToRelocate ?? true,
       };
+
+      const existing = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (existing) {
+        if (bcrypt.compareSync(password, existing.passwordHash)) {
+          existing.name = name;
+          existing.profile = userProfile;
+          const token = jwt.sign({ id: existing.id, email: existing.email, role: existing.role }, JWT_SECRET, { expiresIn: '7d' });
+          const { passwordHash, ...userWithoutPassword } = existing;
+          return res.json({ token, user: userWithoutPassword });
+        }
+        return res.status(400).json({ error: 'An account with this email already exists. Please switch to Sign In.' });
+      }
 
       const newUser: User & { passwordHash: string } = {
         id: `usr-${Date.now()}`,

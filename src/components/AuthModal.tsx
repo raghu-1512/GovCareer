@@ -78,7 +78,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setSuccessMessage(`Password recovery instructions sent to ${email}.`);
       }
     } catch (err: any) {
-      setError(err.message || 'Authentication operation failed.');
+      let msg = 'Authentication operation failed. Please try again.';
+      if (typeof err === 'string') {
+        msg = err;
+      } else if (err && typeof err === 'object') {
+        if (typeof err.message === 'string' && err.message !== '[object Object]') {
+          msg = err.message;
+        } else if (typeof err.error === 'string') {
+          msg = err.error;
+        } else if (err.error && typeof err.error === 'object' && err.error.message) {
+          msg = String(err.error.message);
+        }
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -90,7 +102,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       await demoLogin(role);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Demo login failed.');
+      let msg = 'Demo login failed.';
+      if (typeof err === 'string') {
+        msg = err;
+      } else if (err?.message && err.message !== '[object Object]') {
+        msg = err.message;
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -160,9 +178,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Error / Success Feedback */}
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-400" />
-            <span>{error}</span>
+          <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-400" />
+              <span>{error}</span>
+            </div>
+            {error.toLowerCase().includes('already exists') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null);
+                  setMode('login');
+                }}
+                className="text-blue-400 hover:text-blue-300 underline font-semibold text-[11px] whitespace-nowrap ml-2"
+              >
+                Sign In →
+              </button>
+            )}
           </div>
         )}
 

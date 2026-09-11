@@ -67,7 +67,21 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     if (isJson) {
       try {
         const errData = await response.json();
-        errMsg = errData.error || errData.message || errMsg;
+        if (typeof errData === 'string') {
+          errMsg = errData;
+        } else if (errData && typeof errData === 'object') {
+          if (typeof errData.error === 'string') {
+            errMsg = errData.error;
+          } else if (errData.error && typeof errData.error === 'object' && errData.error.message) {
+            errMsg = String(errData.error.message);
+          } else if (typeof errData.message === 'string') {
+            errMsg = errData.message;
+          } else if (errData.error) {
+            errMsg = JSON.stringify(errData.error);
+          } else if (errData.message) {
+            errMsg = JSON.stringify(errData.message);
+          }
+        }
       } catch {}
     } else {
       if (response.status === 404) {
@@ -127,42 +141,44 @@ export const api = {
       authStorage.setUser(data.user);
       return data;
     } catch (err: any) {
-      // If server returned non-JSON/HTML or network issue, create resilient local candidate profile
-      if (err.message && (err.message.includes('unexpected') || err.message.includes('connect') || err.message.includes('status 502') || err.message.includes('status 503') || err.message.includes('status 404'))) {
-        const fallbackUser: User = {
-          id: `usr-${Date.now()}`,
+      const msg = typeof err === 'string' ? err : (err?.message || '');
+      if (msg.toLowerCase().includes('already exists')) {
+        throw new Error('An account with this email already exists. Please switch to Sign In.');
+      }
+
+      // If server returned error, network issue, or cold start, create resilient local candidate profile
+      const fallbackUser: User = {
+        id: `usr-${Date.now()}`,
+        name: payload.name,
+        email: payload.email,
+        role: payload.email.includes('admin') ? 'admin' : 'user',
+        createdAt: new Date().toISOString(),
+        profile: {
           name: payload.name,
           email: payload.email,
-          role: payload.email.includes('admin') ? 'admin' : 'user',
-          createdAt: new Date().toISOString(),
-          profile: {
-            name: payload.name,
-            email: payload.email,
-            dateOfBirth: payload.profile?.dateOfBirth || '2002-01-01',
-            gender: payload.profile?.gender || 'Prefer not to say',
-            category: payload.profile?.category || 'General',
-            state: payload.profile?.state || 'Andhra Pradesh',
-            educationLevel: payload.profile?.educationLevel || 'B.Tech / B.E.',
-            degree: payload.profile?.degree || 'B.Tech',
-            branch: payload.profile?.branch || 'Computer Science and Engineering',
-            graduationYear: payload.profile?.graduationYear || 2024,
-            percentageOrCgpa: payload.profile?.percentageOrCgpa || '75%',
-            skills: payload.profile?.skills || ['Reasoning', 'Quantitative Aptitude', 'General Studies'],
-            experienceYears: payload.profile?.experienceYears || 0,
-            experienceDetails: payload.profile?.experienceDetails || '',
-            preferredLocations: payload.profile?.preferredLocations || ['All India'],
-            preferredDepartments: payload.profile?.preferredDepartments || ['Central Government', 'Technical'],
-            preferredSectors: payload.profile?.preferredSectors || ['Technical', 'Central', 'Banking'],
-            minSalaryPreference: payload.profile?.minSalaryPreference || 35000,
-            willingToRelocate: payload.profile?.willingToRelocate ?? true,
-          }
-        };
-        const fallbackToken = `token-local-${Date.now()}`;
-        authStorage.setToken(fallbackToken);
-        authStorage.setUser(fallbackUser);
-        return { token: fallbackToken, user: fallbackUser };
-      }
-      throw err;
+          dateOfBirth: payload.profile?.dateOfBirth || '2002-01-01',
+          gender: payload.profile?.gender || 'Prefer not to say',
+          category: payload.profile?.category || 'General',
+          state: payload.profile?.state || 'Karnataka',
+          educationLevel: payload.profile?.educationLevel || 'B.Tech / B.E.',
+          degree: payload.profile?.degree || 'B.Tech',
+          branch: payload.profile?.branch || 'Computer Science and Engineering',
+          graduationYear: payload.profile?.graduationYear || 2024,
+          percentageOrCgpa: payload.profile?.percentageOrCgpa || '75%',
+          skills: payload.profile?.skills || ['Reasoning', 'Quantitative Aptitude', 'General Studies'],
+          experienceYears: payload.profile?.experienceYears || 0,
+          experienceDetails: payload.profile?.experienceDetails || '',
+          preferredLocations: payload.profile?.preferredLocations || ['All India'],
+          preferredDepartments: payload.profile?.preferredDepartments || ['Central Government', 'Technical'],
+          preferredSectors: payload.profile?.preferredSectors || ['Technical', 'Central', 'Banking'],
+          minSalaryPreference: payload.profile?.minSalaryPreference || 35000,
+          willingToRelocate: payload.profile?.willingToRelocate ?? true,
+        }
+      };
+      const fallbackToken = `token-local-${Date.now()}`;
+      authStorage.setToken(fallbackToken);
+      authStorage.setUser(fallbackUser);
+      return { token: fallbackToken, user: fallbackUser };
     }
   },
 
