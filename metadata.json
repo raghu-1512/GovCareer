@@ -1,6 +1,6 @@
 {
-  "name": "Remix GovCareer",
-  "description": "AI-Powered Government Job Career Platform with eligibility checking, application tracking, exam calendar, and career assistant.",
+  "name": "GovCareer AI",
+  "description": "AI-Powered Government Job Career Platform with real-time eligibility checking, syllabus analysis, and official application tracking.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

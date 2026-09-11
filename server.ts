@@ -30,15 +30,24 @@ try {
   console.warn('VAPID setup notice:', vapidErr);
 }
 
-// Initialize Gemini Client
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
-    }
+// Lazy Gemini Client Initialization
+let aiClient: GoogleGenAI | null = null;
+function getAiClient(): GoogleGenAI | null {
+  if (!process.env.GEMINI_API_KEY) {
+    return null;
   }
-});
+  if (!aiClient) {
+    aiClient = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
+  }
+  return aiClient;
+}
 
 // Default Demo User Profile
 const DEFAULT_DEMO_PROFILE: UserProfile = {
@@ -786,16 +795,20 @@ Key Directives:
 5. Provide 2-3 helpful suggested follow-up questions at the very end formatted as JSON array on the last line like: [SUGGESTIONS: ["Question 1", "Question 2", "Question 3"]] ${!isEnglish ? `(ensure the suggestions are written in ${langInfo.name})` : ''}
 `;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.7-flash',
-        contents: message,
-        config: {
-          systemInstruction,
-          temperature: 0.7,
-        }
-      });
+      const ai = getAiClient();
+      let rawText = langInfo.fallbackText;
 
-      const rawText = response.text || langInfo.fallbackText;
+      if (ai) {
+        const response = await ai.models.generateContent({
+          model: 'gemini-3.8-flash',
+          contents: message,
+          config: {
+            systemInstruction,
+            temperature: 0.7,
+          }
+        });
+        rawText = response.text || langInfo.fallbackText;
+      }
       
       // Extract suggestions if present
       let cleanedText = rawText;
@@ -891,8 +904,13 @@ Return the response STRICTLY as a valid JSON object with the following schema:
   ]
 }`;
 
+      const ai = getAiClient();
+      if (!ai) {
+        throw new Error('AI client key not configured, using structured fallback');
+      }
+
       const response = await ai.models.generateContent({
-        model: 'gemini-3.7-flash',
+        model: 'gemini-3.8-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -1035,8 +1053,13 @@ Analyze candidate-to-job fit and return STRICTLY a valid JSON object matching th
 ${!isEnglish ? `CRITICAL REQUIREMENT: Output the "summary", "relevance", "strategicAdvantage", "growthPotential", and "recommendedPrepFocus" in fluent, natural ${langInfo.name} (${langInfo.nativeName} script) so the candidate can read easily.` : ''}
 `;
 
+      const ai = getAiClient();
+      if (!ai) {
+        throw new Error('AI client key not configured, using structured fallback');
+      }
+
       const response = await ai.models.generateContent({
-        model: 'gemini-3.7-flash',
+        model: 'gemini-3.8-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
